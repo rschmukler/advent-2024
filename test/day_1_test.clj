@@ -1,9 +1,10 @@
 (ns day-1-test
   (:require [day-1 :as sut]
+            [aoc]
             [clojure.test :refer [deftest is]]))
 
 (def example
-  (sut/parse-puzzle-input (slurp "resources/day_1/sample.txt")))
+  (sut/parse-puzzle-input (aoc/example 1)))
 
 (deftest parse-puzzle-input-test
   (is (= [[3 4 2 1 3 3]

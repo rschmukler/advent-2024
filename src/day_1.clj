@@ -1,19 +1,15 @@
 (ns day-1
-  (:require [clojure.string :as str]))
+  (:require [aoc]))
 
 (defonce puzzle-input
-  (slurp "resources/day_1/input.txt"))
+  (aoc/input 1))
 
 (defn parse-puzzle-input
   "Parse the puzzle input into a tuple of the two lists"
   [txt]
-  (reduce
-    (fn [[as bs] line]
-      (let [[a b] (re-seq #"\d+" line)]
-        [(conj as (parse-long a))
-         (conj bs (parse-long b))]))
-    [[][]]
-    (str/split-lines txt)))
+  (-> txt
+      (aoc/process-input {:lines true :ints true})
+      (aoc/transpose)))
 
 (defn compute-total-distance
   "Compute the total distance between the two lists"
@@ -21,7 +17,7 @@
   (reduce
     +
     (map
-      #(Math/abs (- %1 %2))
+      #(abs (- %1 %2))
       (sort as)
       (sort bs))))
 
