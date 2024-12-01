@@ -1,5 +1,5 @@
-(ns day-1-test
-  (:require [day-1 :as sut]
+(ns aoc.day-1-test
+  (:require [aoc.day-1 :as sut]
             [aoc]
             [clojure.test :refer [deftest is]]))
 

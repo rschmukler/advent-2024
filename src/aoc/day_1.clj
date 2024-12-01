@@ -1,4 +1,4 @@
-(ns day-1
+(ns aoc.day-1
   (:require [aoc]))
 
 (defonce puzzle-input

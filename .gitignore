@@ -1,3 +1,4 @@
 /.cpcache/
 /.nrepl-port
 /.clerk/
+/resources/day_*/input.txt
