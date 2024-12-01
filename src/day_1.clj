@@ -27,12 +27,12 @@
   (let [a->b-cnt (frequencies bs)]
     (reduce + (map #(* % (a->b-cnt % 0)) as))))
 
-(comment
-  ;; Solve part one
-  (-> puzzle-input
-      parse-puzzle-input
-      compute-total-distance)
+;; Solve part one
+(-> puzzle-input
+    parse-puzzle-input
+    compute-total-distance)
 
-  (-> puzzle-input
-      parse-puzzle-input
-      compute-total-similarity-score))
+;; Solve part two
+(-> puzzle-input
+    parse-puzzle-input
+    compute-total-similarity-score)
