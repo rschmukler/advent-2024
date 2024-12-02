@@ -1,0 +1,65 @@
+name: Clerk
+
+# Controls when the action will run. Triggers the workflow on push or pull request
+# events but only for the master branch
+on:
+  push:
+    branches: [ main ]
+
+# A workflow run is made up of one or more jobs that can run sequentially or in parallel
+jobs:
+  build:
+    name: Build static files
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+    # Steps represent a sequence of tasks that will be executed as part of the job
+    steps:
+      # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
+      - uses: actions/checkout@v4
+        name: Checkout
+      - uses: actions/setup-java@v4
+        name: Setup Java
+        with:
+          distribution: 'temurin' # See 'Supported distributions' for available options
+          java-version: '23'
+      - name: Setup Clojure
+        uses: DeLaGuardo/setup-clojure@12.5
+        with:
+          # Install just one or all simultaneously
+          # The value must indicate a particular version of the tool, or use 'latest'
+          # to always provision the latest version
+          cli: 1.11.1.1413             # Clojure CLI based on tools.deps
+          clj-kondo: 2024.09.27        # Clj-kondo
+      - name: Cache clojure dependencies
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.m2/repository
+            ~/.gitlibs
+            ~/.deps.clj
+          # List all files containing dependencies:
+          key: cljdeps-${{ hashFiles('deps.edn') }}
+          restore-keys: cljdeps-
+      - name: Build docs
+        run: clojure -e "(do (nextjournal.clerk/build! {:paths [\"src/aoc/*.clj\"]}) (System/exit 0))"
+        env:
+          AOC_SESSION_ID: ${{ secrets.AOC_SESSION_ID }}
+      - name: Publish
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: public/build/
+  deploy:
+    name: Deploy pages
+    needs: build
+    permissions:
+      pages: write
+      id-token: write
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
