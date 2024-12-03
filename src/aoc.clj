@@ -65,6 +65,7 @@
                                  :path file-path})))
                 _    (println "Fetching data for day" day)
                 data (-fetch-remote-input day)]
+            (.mkdirs (.getParentFile f))
             (spit f data)
             data))
         (process-input opts))))
