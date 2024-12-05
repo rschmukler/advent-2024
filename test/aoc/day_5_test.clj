@@ -7,7 +7,7 @@
   (aoc/example 5 {:lines true :ints true}))
 
 (def example-puzzle
-  (sut/parse-input example-input))
+  (sut/input->puzzle example-input))
 
 
 (deftest correct-order?-test
