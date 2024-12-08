@@ -89,3 +89,11 @@
       (mapv conj acc row))
     (vec (repeat (count (first m)) []))
     m))
+
+
+(defn gcd
+  "Return the greatest common divisor of `a` and `b`"
+  [a b]
+  (if (zero? b)
+    a
+    (recur b (mod a b))))
