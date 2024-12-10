@@ -8,17 +8,21 @@
   "Optionally takes the following arguments:
 
   :lines - if true, process the input as a seq of lines
-  :ints - if true, parse ints from the input")
+  :ints - if true, parse ints from the input
+  :digits - if true, parse ints as individual digits")
 
 (defn process-input
   {:doc
    (str "Utility function for transforming the raw input into a more usable form."
         -process-input-docs)}
-  [raw-input & {:keys [lines ints]}]
+  [raw-input & {:keys [lines ints digits]}]
   (let [parse-line (fn [in]
                      (as-> in in
                        (if ints
                          (map parse-long (re-seq #"\d+" in))
+                         in)
+                       (if digits
+                         (map parse-long (re-seq #"\d" in))
                          in)))]
     (cond->> raw-input
       lines       (str/split-lines)
