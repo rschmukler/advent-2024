@@ -71,9 +71,61 @@
 
 ;; Solve part two
 
-;; Naively we could just traverse the whole disk over and over but that will be a n^2
-;; operation. Let's see...
-(defn simulate-compaction-part-two
+(defn split-q-with-pred
+  "Return `[before x after]` on the given `q` that matches `pred`"
+  [q pred]
+  (loop [before (empty q)
+         q      q]
+    (if (empty? q)
+      [before nil q]
+      (let [x (first q)]
+        (if (pred x)
+          [before x (rest q)]
+          (recur (conj before x) (rest q)))))))
+
+(defn update-q-last
+  "Update the last item in the provided `q`"
+  [q f & args]
+  (let [x (peek q)]
+    (conj (pop q) (apply f x args))))
+
+
+(defn step-compaction-q
+  [fds mv-file-id]
+  (let [[fds-before
+         {:keys [free-space file-size] :as mv-file} fds-after] (split-q-with-pred
+                                                                 fds
+                                                                 #(= mv-file-id (:id %)))
+        [fds-before-insert
+         insert-file
+         fds-after-insert]                                     (split-q-with-pred
+                                                                 fds-before
+                                                                 #(>= (:free-space %) file-size))]
+    (if-not insert-file
+      fds
+      (let [fds-after-insert (if (seq fds-after-insert)
+                               (update-q-last fds-after-insert
+                                              update :free-space + free-space file-size)
+                               fds-after-insert)
+            mv-file          (if (seq fds-after-insert)
+                               (assoc mv-file :free-space (- (:free-space insert-file) file-size))
+                               (update mv-file :free-space + file-size))
+            insert-file      (assoc insert-file :free-space 0)]
+        (ft/ft-concat
+          (conj fds-before-insert insert-file mv-file)
+          (ft/ft-concat fds-after-insert fds-after))))))
+
+(defn simulate-compaction-part-two-q
   "Given a list of `fds` return the fds after compaction"
   [fds]
-  fds)
+  (->> (map :id fds)
+       (reverse)
+       (butlast)
+       (reduce step-compaction-q (into (ft/counted-double-list) fds))))
+
+
+(comment
+  (-> (input->descriptors puzzle-input)
+      (simulate-compaction-part-two-q)
+      (initialize-disk)
+      (compute-checksum)))

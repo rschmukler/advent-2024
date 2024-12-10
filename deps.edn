@@ -3,4 +3,5 @@
  {criterium/criterium {:mvn/version "0.4.6"}
   io.github.nextjournal/clerk {:git/url "https://github.com/nextjournal/clerk.git"
                                :git/sha "d9cab25aae62029557cff3346e7bd06e878999cd"}
+  org.clojure/data.finger-tree {:mvn/version "0.1.0"}
   hato/hato {:mvn/version "1.0.0"}}}

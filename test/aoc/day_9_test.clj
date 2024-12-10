@@ -40,7 +40,56 @@
                   (sut/run-compaction!)
                   (sut/compute-checksum)))))
 
-(deftest simulate-compaction-part-two-test
+(defn str->q
+  [s]
+  (into
+    (ft/counted-double-list)
+    (for [[_ ids free-space] (re-seq #"(\d+)(\.*)" s)]
+      {:id         (parse-long (str (first ids)))
+       :file-size  (count ids)
+       :free-space (count free-space)})))
+
+(deftest step-compaction-q-test
+  (let [fds (into (ft/counted-double-list) descriptors)]
+    (is (= "00...111...2...333.44.5555.6666.777.888899"
+           (sut/fds->str fds)))
+    (is (= "0099.111...2...333.44.5555.6666.777.8888.."
+           (-> fds
+               (sut/step-compaction-q 9)
+               (sut/fds->str))))
+    (is (= "0099.1117772...333.44.5555.6666.....8888.."
+           (-> fds
+               (sut/step-compaction-q 9)
+               (sut/step-compaction-q 8)
+               (sut/step-compaction-q 7)
+               (sut/fds->str))))
+    (is (= "0099.111777244.333....5555.6666.....8888.."
+           (-> fds
+               (sut/step-compaction-q 9)
+               (sut/step-compaction-q 8)
+               (sut/step-compaction-q 7)
+               (sut/step-compaction-q 6)
+               (sut/step-compaction-q 5)
+               (sut/step-compaction-q 4)
+               (sut/fds->str))))
+    (is (= "00992111777.44.333....5555.6666.....8888.."
+           (-> fds
+               (sut/step-compaction-q 9)
+               (sut/step-compaction-q 8)
+               (sut/step-compaction-q 7)
+               (sut/step-compaction-q 6)
+               (sut/step-compaction-q 5)
+               (sut/step-compaction-q 4)
+               (sut/step-compaction-q 3)
+               (sut/step-compaction-q 2)
+               (sut/step-compaction-q 1)
+               (sut/fds->str))))
+
+    (is (= "00111....."
+           (-> (sut/step-compaction-q (str->q "00...111..") 1)
+               (sut/fds->str))))))
+
+(deftest simulate-compaction-part-two-q-test
   (is (= [{:id 0 :file-size 2 :free-space 0}
           {:id 9 :file-size 2 :free-space 0}
           {:id 2 :file-size 1 :free-space 0}
@@ -51,4 +100,10 @@
           {:id 5 :file-size 4 :free-space 1}
           {:id 6 :file-size 4 :free-space 5}
           {:id 8 :file-size 4 :free-space 2}]
-         (sut/simulate-compaction-part-two descriptors))))
+         (sut/simulate-compaction-part-two descriptors)))
+
+  (is (= 2858
+         (->> descriptors
+              (sut/simulate-compaction-part-two)
+              (sut/initialize-disk)
+              (sut/compute-checksum)))))
