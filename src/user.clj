@@ -2,6 +2,7 @@
   (:require [nextjournal.clerk :as clerk]))
 
 (clerk/serve! {:browse      true
+               :port        7779
                :paths       ["src/aoc/*"]
                :watch-paths ["src/aoc/"]})
 
